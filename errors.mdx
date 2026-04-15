@@ -1,0 +1,82 @@
+---
+title: Errors
+description: HTTP status codes and error response format.
+---
+
+## Error response format
+
+All errors follow a consistent JSON structure:
+
+```json
+{
+  "error": "Error Type",
+  "message": "Human-readable description of what went wrong."
+}
+```
+
+## HTTP status codes
+
+| Status | Meaning | Common cause |
+|--------|---------|-------------|
+| `200` | OK | Request succeeded |
+| `400` | Bad Request | Missing or malformed request body / parameter |
+| `401` | Unauthorized | Missing, invalid, or revoked API key |
+| `402` | Payment Required | No credits remaining on the account |
+| `422` | Unprocessable Entity | Input failed validation (e.g. invalid email format) |
+| `429` | Too Many Requests | Rate limit exceeded — see [Rate Limits](/rate-limits) |
+| `500` | Internal Server Error | Unexpected server-side error |
+| `503` | Service Unavailable | Upstream provider temporarily unavailable |
+
+## Common errors
+
+<AccordionGroup>
+  <Accordion title="401 — Invalid API key">
+    ```json
+    {
+      "error": "Unauthorized",
+      "message": "Invalid or missing API key."
+    }
+    ```
+    Check that your key is correctly formatted and included in the `Authorization: Bearer` header.
+  </Accordion>
+
+  <Accordion title="400 — Missing required field">
+    ```json
+    {
+      "error": "Bad Request",
+      "message": "Required field 'email' is missing from the request body."
+    }
+    ```
+    Ensure your request body contains all required fields for the endpoint you are calling.
+  </Accordion>
+
+  <Accordion title="402 — Insufficient credits">
+    ```json
+    {
+      "error": "Payment Required",
+      "message": "Insufficient credits. Top up your account or upgrade your plan."
+    }
+    ```
+    Your credit balance has reached zero. Purchase a top-up from the [billing page](https://datalinkapis.com/dashboard/billing) or upgrade your plan.
+  </Accordion>
+
+  <Accordion title="422 — Validation error">
+    ```json
+    {
+      "error": "Unprocessable Entity",
+      "message": "The value provided for 'email' is not a valid email address."
+    }
+    ```
+    The input passed basic format validation but failed deeper validation. Check the `message` field for specifics.
+  </Accordion>
+
+  <Accordion title="503 — Upstream unavailable">
+    ```json
+    {
+      "error": "Service Unavailable",
+      "message": "One or more upstream providers are currently unavailable. Please retry shortly."
+    }
+    ```
+    DataLink routes through multiple upstream providers with automatic failover. A `503` means all providers for this data type are temporarily unreachable. Check [status.datalinkapis.com](https://status.datalinkapis.com) for live platform health.
+  </Accordion>
+</AccordionGroup>

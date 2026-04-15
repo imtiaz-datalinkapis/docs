@@ -1,0 +1,50 @@
+---
+title: API Reference Overview
+description: All DataLink endpoints at a glance.
+---
+
+## Base URL
+
+```
+https://api.datalinkapis.com
+```
+
+## Request format
+
+All endpoints use `POST` with a JSON body and Bearer token authentication.
+
+```bash
+curl -X POST https://api.datalinkapis.com/v1/{endpoint} \
+  -H "Authorization: Bearer dl_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ ... }'
+```
+
+## Endpoints
+
+### Core endpoints
+
+| Endpoint | Description | Credits |
+|----------|-------------|---------|
+| [`POST /v1/email`](/api-reference/email) | Email syntax, MX, and SMTP validation | 1 |
+| [`POST /v1/ip`](/api-reference/ip) | IP geolocation and proxy detection | 1 |
+| [`POST /v1/phone`](/api-reference/phone) | Phone carrier and HLR lookup | 2 |
+| [`POST /v1/domain`](/api-reference/domain) | Domain WHOIS, DNS, and safety score | 2 |
+
+### Bundle endpoints
+
+| Endpoint | Description | Credits |
+|----------|-------------|---------|
+| [`POST /v1/deliverability`](/api-reference/deliverability) | Deep email deliverability check | 3 |
+| [`POST /v1/contact-intel`](/api-reference/contact-intel) | Email + Phone + IP combined | 4 |
+| [`POST /v1/fraud-signals`](/api-reference/fraud-signals) | Full entity profile — Email + Phone + IP + Domain | 5 |
+
+## Common fields in every response
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `credits_used` | integer | Credits deducted for this request |
+
+## Try it live
+
+Use the [API Playground](https://datalinkapis.com/playground) to fire real requests against all endpoints without writing any code.

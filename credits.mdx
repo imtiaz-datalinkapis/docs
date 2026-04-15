@@ -1,0 +1,62 @@
+---
+title: Credits
+description: How the DataLink credit system works.
+---
+
+## What is a credit?
+
+A credit is the unit of consumption for every API call. Each endpoint has a fixed credit cost regardless of the result — a failed validation still costs the same as a successful one, because the lookup was performed.
+
+## Credit costs per endpoint
+
+| Endpoint | Credits |
+|----------|---------|
+| `POST /v1/email` | 1 |
+| `POST /v1/ip` | 1 |
+| `POST /v1/phone` | 2 |
+| `POST /v1/domain` | 2 |
+| `POST /v1/deliverability` | 3 |
+| `POST /v1/contact-intel` | 4 |
+| `POST /v1/fraud-signals` | 5 |
+
+## Bundle savings
+
+Bundle endpoints are cheaper than calling each component separately:
+
+| Bundle | Components | Separate cost | Bundle cost | Saving |
+|--------|-----------|--------------|-------------|--------|
+| Contact Intel | Email + Phone + IP | 4 credits | 4 credits | Same cost, one call |
+| Fraud Signals | Email + Phone + IP + Domain | 6 credits | 5 credits | 1 credit saved |
+
+<Tip>
+  Use bundle endpoints when you need multiple data points on the same entity. You get a unified response in one round trip.
+</Tip>
+
+## Monthly allowance
+
+Credits are allocated at the start of each billing cycle and reset monthly. They do not roll over.
+
+| Plan | Credits / month |
+|------|----------------|
+| Free | 200 |
+| Starter | 5,000 |
+| Pro | 25,000 |
+
+## Checking your balance
+
+Your remaining credit balance is visible in the [dashboard](https://datalinkapis.com/dashboard). Each API response also includes a `credits_used` field showing the cost of that specific call.
+
+## Running out of credits
+
+When your credit balance reaches zero, subsequent API calls return a `402 Payment Required` response. You can:
+
+- **Upgrade your plan** — for a higher monthly allowance
+- **Purchase a credit add-on pack** — one-off top-up that doesn't affect your billing cycle
+
+| Add-on pack | Credits | Price |
+|-------------|---------|-------|
+| Starter pack | 1,000 credits | $25 |
+| Growth pack | 5,000 credits | $100 |
+| Scale pack | 20,000 credits | $350 |
+
+Add-on credits are available from the [billing page](https://datalinkapis.com/dashboard/billing) and never expire.

@@ -1,0 +1,79 @@
+---
+title: Phone HLR
+description: Carrier identification and Home Location Register lookup for any phone number.
+---
+
+## Endpoint
+
+```
+POST /v1/phone
+```
+
+**Cost:** 2 credits per request
+
+## Request body
+
+```json
+{
+  "phone": "+447700900123"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `phone` | string | Yes | Phone number in E.164 format (e.g. `+447700900123`) |
+
+<Tip>
+  Always use E.164 format — country code prefix with `+`, no spaces or dashes. For example: `+14155552671` for a US number, `+447700900123` for a UK number.
+</Tip>
+
+## Example request
+
+```bash
+curl -X POST https://api.datalinkapis.com/v1/phone \
+  -H "Authorization: Bearer dl_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "phone": "+447700900123" }'
+```
+
+## Response
+
+```json
+{
+  "phone": "+447700900123",
+  "valid": true,
+  "reachable": true,
+  "country": "United Kingdom",
+  "country_code": "GB",
+  "national_format": "07700 900123",
+  "line_type": "mobile",
+  "carrier": "EE",
+  "carrier_country": "GB",
+  "ported": false,
+  "roaming": false,
+  "credits_used": 2
+}
+```
+
+## Response fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `phone` | string | The number that was checked (E.164) |
+| `valid` | boolean | Whether the number is valid and in a known range |
+| `reachable` | boolean | Whether HLR confirms the number is active on a network |
+| `country` | string | Country the number is registered in |
+| `country_code` | string | ISO 3166-1 alpha-2 country code |
+| `national_format` | string | Locally formatted version of the number |
+| `line_type` | string | `mobile`, `landline`, `voip`, or `unknown` |
+| `carrier` | string | Current carrier name |
+| `carrier_country` | string | Country of the carrier |
+| `ported` | boolean | Whether the number has been ported to a different carrier |
+| `roaming` | boolean | Whether the handset is currently roaming |
+| `credits_used` | integer | Credits deducted — always `2` for this endpoint |
+
+## Use cases
+
+- **SMS deliverability** — confirm a number is active before sending a campaign
+- **Identity verification** — validate phone numbers at signup
+- **Fraud detection** — flag VoIP numbers or numbers ported recently

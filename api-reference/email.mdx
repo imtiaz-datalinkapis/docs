@@ -1,0 +1,73 @@
+---
+title: Email Validation
+description: Validate email syntax, MX records, and SMTP reachability.
+---
+
+## Endpoint
+
+```
+POST /v1/email
+```
+
+**Cost:** 1 credit per request
+
+## Request body
+
+```json
+{
+  "email": "hello@datalinkapis.com"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `email` | string | Yes | The email address to validate |
+
+## Example request
+
+```bash
+curl -X POST https://api.datalinkapis.com/v1/email \
+  -H "Authorization: Bearer dl_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "email": "hello@datalinkapis.com" }'
+```
+
+## Response
+
+```json
+{
+  "email": "hello@datalinkapis.com",
+  "valid": true,
+  "deliverable": true,
+  "syntax_valid": true,
+  "mx_found": true,
+  "smtp_valid": true,
+  "disposable": false,
+  "role_account": false,
+  "free_provider": false,
+  "domain": "datalinkapis.com",
+  "credits_used": 1
+}
+```
+
+## Response fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `email` | string | The email address that was checked |
+| `valid` | boolean | Overall validity — true if the address is likely deliverable |
+| `deliverable` | boolean | Whether SMTP handshake confirmed the mailbox exists |
+| `syntax_valid` | boolean | Whether the address passes RFC 5321 syntax rules |
+| `mx_found` | boolean | Whether a valid MX record exists for the domain |
+| `smtp_valid` | boolean | Whether the SMTP server accepted the address |
+| `disposable` | boolean | Whether the domain belongs to a disposable/temporary email provider |
+| `role_account` | boolean | Whether this is a role address (e.g. info@, support@, noreply@) |
+| `free_provider` | boolean | Whether this is a free consumer email provider (e.g. Gmail, Yahoo) |
+| `domain` | string | The domain portion of the email address |
+| `credits_used` | integer | Credits deducted — always `1` for this endpoint |
+
+## Use cases
+
+- **List hygiene** — remove invalid and undeliverable addresses before a send
+- **Signup validation** — reject disposable addresses at the point of registration
+- **Role account filtering** — flag addresses unlikely to belong to a real person

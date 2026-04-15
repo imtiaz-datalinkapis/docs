@@ -1,0 +1,98 @@
+---
+title: Contact Intelligence
+description: Validate email, phone, and IP in a single request.
+---
+
+## Endpoint
+
+```
+POST /v1/contact-intel
+```
+
+**Cost:** 4 credits per request
+
+Contact Intel combines email validation, phone HLR, and IP intelligence into a single call. Instead of three separate requests (4 credits total), you get a unified response with full context on a contact in one round trip.
+
+## Request body
+
+```json
+{
+  "email": "alex@acme.com",
+  "phone": "+447700900123",
+  "ip": "8.8.8.8"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `email` | string | Yes | Email address to validate |
+| `phone` | string | Yes | Phone number in E.164 format |
+| `ip` | string | Yes | IPv4 or IPv6 address |
+
+## Example request
+
+```bash
+curl -X POST https://api.datalinkapis.com/v1/contact-intel \
+  -H "Authorization: Bearer dl_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "alex@acme.com",
+    "phone": "+447700900123",
+    "ip": "8.8.8.8"
+  }'
+```
+
+## Response
+
+```json
+{
+  "email": {
+    "address": "alex@acme.com",
+    "valid": true,
+    "deliverable": true,
+    "disposable": false,
+    "role_account": false,
+    "mx_found": true
+  },
+  "phone": {
+    "number": "+447700900123",
+    "valid": true,
+    "reachable": true,
+    "line_type": "mobile",
+    "carrier": "EE",
+    "country_code": "GB"
+  },
+  "ip": {
+    "address": "8.8.8.8",
+    "country_code": "US",
+    "city": "Mountain View",
+    "is_vpn": false,
+    "is_proxy": false,
+    "is_tor": false,
+    "threat_score": 10
+  },
+  "credits_used": 4
+}
+```
+
+## Response fields
+
+The response contains three nested objects — `email`, `phone`, and `ip` — each containing a subset of the fields from their respective standalone endpoints.
+
+For the full field reference for each section, see:
+- [Email Validation](/api-reference/email)
+- [Phone HLR](/api-reference/phone)
+- [IP Intelligence](/api-reference/ip)
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `email` | object | Email validation results |
+| `phone` | object | Phone HLR results |
+| `ip` | object | IP intelligence results |
+| `credits_used` | integer | Credits deducted — always `4` for this endpoint |
+
+## Use cases
+
+- **Signup risk assessment** — validate all three data points at registration in a single call
+- **CRM enrichment** — enrich a new lead record with confidence on email, phone, and location simultaneously
+- **Contact list cleaning** — batch-process contacts with a single endpoint rather than three

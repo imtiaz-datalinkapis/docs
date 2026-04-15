@@ -1,0 +1,66 @@
+---
+title: Introduction
+description: One API key. Four intelligence bundles. Real-time data on email, phone, IP, and domain.
+---
+
+## What is DataLink APIs?
+
+DataLink APIs is a data intelligence gateway that lets you validate and enrich any contact or entity with a single API call. Instead of managing four separate vendor integrations, you get one key, one endpoint pattern, and one credit system across all data types.
+
+<CardGroup cols={2}>
+  <Card title="Email Validation" icon="envelope" color="#10B981">
+    Syntax check, MX record lookup, and live SMTP reachability. Know if an address can receive mail before you send.
+  </Card>
+  <Card title="Phone HLR" icon="phone" color="#10B981">
+    Carrier identification and Home Location Register lookup. Confirm a number is active and on-network in real time.
+  </Card>
+  <Card title="IP Intelligence" icon="globe" color="#10B981">
+    Geolocation, ISP, ASN, VPN and proxy detection. Know where your users are coming from and whether to trust the connection.
+  </Card>
+  <Card title="Domain Intelligence" icon="link" color="#10B981">
+    WHOIS data, DNS health, and a composite safety score. Profile any domain before you engage with it.
+  </Card>
+</CardGroup>
+
+## Bundle endpoints
+
+For higher-signal use cases, bundle endpoints combine multiple data types in a single call — cheaper than calling each individually.
+
+| Endpoint | What it covers | Credits |
+|----------|---------------|---------|
+| `/v1/deliverability` | Deep email SMTP + spam trap + disposable detection | 3 |
+| `/v1/contact-intel` | Email + Phone + IP in one request | 4 |
+| `/v1/fraud-signals` | Email + Phone + IP + Domain — full entity profile | 5 |
+
+## How credits work
+
+Every API call costs a fixed number of credits depending on the endpoint. Credits are deducted from your monthly allowance. Your plan determines how many credits you get per month.
+
+| Plan | Credits / month | Price |
+|------|----------------|-------|
+| Free | 200 | $0 |
+| Starter | 5,000 | $49 |
+| Pro | 25,000 | $199 |
+
+<Note>
+  Credits reset at the start of each billing cycle. Unused credits do not roll over.
+</Note>
+
+## Base URL
+
+All API requests are made to:
+
+```
+https://api.datalinkapis.com
+```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="bolt" href="/quickstart">
+    Make your first API call in under 5 minutes.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Learn how to authenticate your requests.
+  </Card>
+</CardGroup>

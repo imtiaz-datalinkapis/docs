@@ -1,0 +1,72 @@
+---
+title: Authentication
+description: How to authenticate requests to the DataLink API.
+---
+
+## Bearer token
+
+All requests to the DataLink API must include your API key as a Bearer token in the `Authorization` header.
+
+```bash
+Authorization: Bearer dl_live_YOUR_KEY
+```
+
+## Example
+
+```bash
+curl -X POST https://api.datalinkapis.com/v1/email \
+  -H "Authorization: Bearer dl_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "email": "test@example.com" }'
+```
+
+## Getting your API key
+
+1. Log in to your [DataLink dashboard](https://datalinkapis.com/dashboard)
+2. Navigate to **API Keys**
+3. Copy your key — it is shown once in full at creation
+
+## Key format
+
+| Prefix | Environment |
+|--------|-------------|
+| `dl_live_` | Production — real credits are deducted |
+| `dl_test_` | Test mode — no credits deducted, responses are mocked |
+
+<Note>
+  Test mode keys are available on Starter and Pro plans.
+</Note>
+
+## Security best practices
+
+<AccordionGroup>
+  <Accordion title="Never expose keys client-side">
+    API keys must only be used server-side. Embedding a key in browser JavaScript, a mobile app binary, or a public repository will expose it to anyone who reads the source.
+  </Accordion>
+  <Accordion title="Use environment variables">
+    Store your key in an environment variable (e.g. `DATALINK_API_KEY`) and reference it in code — never hardcode it as a string literal.
+  </Accordion>
+  <Accordion title="Rotate keys if compromised">
+    If you suspect a key has been exposed, generate a new one from the dashboard immediately. Old keys are revoked as soon as a replacement is created.
+  </Accordion>
+</AccordionGroup>
+
+## Error responses
+
+If your key is missing or invalid, the API returns a `401` response:
+
+```json
+{
+  "error": "Unauthorized",
+  "message": "Invalid or missing API key."
+}
+```
+
+If your key is valid but your account has no remaining credits, you will receive a `402`:
+
+```json
+{
+  "error": "Payment Required",
+  "message": "Insufficient credits. Top up your account or upgrade your plan."
+}
+```

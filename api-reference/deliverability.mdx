@@ -1,0 +1,86 @@
+---
+title: Deliverability
+description: Deep email deliverability check — SMTP handshake, spam trap detection, and disposable screening.
+---
+
+## Endpoint
+
+```
+POST /v1/deliverability
+```
+
+**Cost:** 3 credits per request
+
+This is a deeper version of the standard email validation. Where `/v1/email` confirms basic reachability, `/v1/deliverability` runs an extended SMTP handshake, cross-references known spam trap databases, and applies additional disposable provider detection.
+
+## Request body
+
+```json
+{
+  "email": "hello@datalinkapis.com"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `email` | string | Yes | The email address to check |
+
+## Example request
+
+```bash
+curl -X POST https://api.datalinkapis.com/v1/deliverability \
+  -H "Authorization: Bearer dl_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "email": "hello@datalinkapis.com" }'
+```
+
+## Response
+
+```json
+{
+  "email": "hello@datalinkapis.com",
+  "deliverable": true,
+  "confidence": "high",
+  "syntax_valid": true,
+  "mx_found": true,
+  "smtp_valid": true,
+  "spam_trap": false,
+  "disposable": false,
+  "catch_all": false,
+  "role_account": false,
+  "free_provider": false,
+  "domain": "datalinkapis.com",
+  "credits_used": 3
+}
+```
+
+## Response fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `email` | string | The address that was checked |
+| `deliverable` | boolean | Whether the address is likely to accept mail |
+| `confidence` | string | Confidence level: `high`, `medium`, or `low` |
+| `syntax_valid` | boolean | RFC 5321 syntax check |
+| `mx_found` | boolean | Whether a valid MX record exists |
+| `smtp_valid` | boolean | Whether the extended SMTP handshake succeeded |
+| `spam_trap` | boolean | Whether the address matches a known spam trap |
+| `disposable` | boolean | Whether the domain is a disposable provider |
+| `catch_all` | boolean | Whether the domain accepts all addresses regardless of existence |
+| `role_account` | boolean | Whether this is a role address (info@, support@, etc.) |
+| `free_provider` | boolean | Whether this is a free consumer email provider |
+| `domain` | string | Domain portion of the address |
+| `credits_used` | integer | Credits deducted — always `3` for this endpoint |
+
+## When to use vs `/v1/email`
+
+| | `/v1/email` (1cr) | `/v1/deliverability` (3cr) |
+|--|--|--|
+| Syntax check | ✓ | ✓ |
+| MX lookup | ✓ | ✓ |
+| SMTP check | Basic | Extended handshake |
+| Spam trap detection | — | ✓ |
+| Catch-all detection | — | ✓ |
+| Confidence score | — | ✓ |
+
+Use `/v1/deliverability` when sending to a list where a bounce or spam trap hit would have significant consequences — e.g. cold outreach or transactional flows with strict deliverability SLAs.

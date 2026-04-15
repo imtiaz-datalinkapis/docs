@@ -1,0 +1,85 @@
+---
+title: IP Intelligence
+description: Geolocation, ISP, and VPN/proxy detection for any IP address.
+---
+
+## Endpoint
+
+```
+POST /v1/ip
+```
+
+**Cost:** 1 credit per request
+
+## Request body
+
+```json
+{
+  "ip": "8.8.8.8"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `ip` | string | Yes | IPv4 or IPv6 address to look up |
+
+## Example request
+
+```bash
+curl -X POST https://api.datalinkapis.com/v1/ip \
+  -H "Authorization: Bearer dl_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "ip": "8.8.8.8" }'
+```
+
+## Response
+
+```json
+{
+  "ip": "8.8.8.8",
+  "valid": true,
+  "country": "United States",
+  "country_code": "US",
+  "region": "California",
+  "city": "Mountain View",
+  "latitude": 37.4056,
+  "longitude": -122.0775,
+  "timezone": "America/Los_Angeles",
+  "isp": "Google LLC",
+  "asn": "AS15169",
+  "is_vpn": false,
+  "is_proxy": false,
+  "is_tor": false,
+  "is_datacenter": true,
+  "threat_score": 10,
+  "credits_used": 1
+}
+```
+
+## Response fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `ip` | string | The IP address that was checked |
+| `valid` | boolean | Whether the IP is a valid, routable address |
+| `country` | string | Country name |
+| `country_code` | string | ISO 3166-1 alpha-2 country code |
+| `region` | string | Region or state |
+| `city` | string | City |
+| `latitude` | number | Latitude coordinate |
+| `longitude` | number | Longitude coordinate |
+| `timezone` | string | IANA timezone identifier |
+| `isp` | string | Internet Service Provider name |
+| `asn` | string | Autonomous System Number |
+| `is_vpn` | boolean | Whether the IP is associated with a VPN service |
+| `is_proxy` | boolean | Whether the IP is a known proxy |
+| `is_tor` | boolean | Whether the IP is a Tor exit node |
+| `is_datacenter` | boolean | Whether the IP belongs to a datacenter or cloud provider |
+| `threat_score` | integer | Composite threat score 0–100. Higher = higher risk. |
+| `credits_used` | integer | Credits deducted — always `1` for this endpoint |
+
+## Use cases
+
+- **Fraud prevention** — flag signups or transactions from VPNs, Tor, or high-risk proxies
+- **Geo-restriction** — enforce regional access controls
+- **Location personalisation** — serve localised content based on country or timezone

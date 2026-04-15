@@ -1,0 +1,120 @@
+---
+title: Fraud Signals
+description: Full entity profile — email, phone, IP, and domain in one call.
+---
+
+## Endpoint
+
+```
+POST /v1/fraud-signals
+```
+
+**Cost:** 5 credits per request
+
+Fraud Signals is the highest-signal endpoint in the DataLink suite. It runs all four intelligence types — email, phone, IP, and domain — and returns a unified risk assessment with a composite fraud score. Calling each separately would cost 6 credits; the bundle saves 1 credit while delivering a richer, correlated result.
+
+## Request body
+
+```json
+{
+  "email": "alex@acme.com",
+  "phone": "+447700900123",
+  "ip": "8.8.8.8",
+  "domain": "acme.com"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `email` | string | Yes | Email address to validate |
+| `phone` | string | Yes | Phone number in E.164 format |
+| `ip` | string | Yes | IPv4 or IPv6 address |
+| `domain` | string | Yes | Domain to check (without protocol) |
+
+## Example request
+
+```bash
+curl -X POST https://api.datalinkapis.com/v1/fraud-signals \
+  -H "Authorization: Bearer dl_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "alex@acme.com",
+    "phone": "+447700900123",
+    "ip": "8.8.8.8",
+    "domain": "acme.com"
+  }'
+```
+
+## Response
+
+```json
+{
+  "fraud_score": 8,
+  "risk_level": "low",
+  "email": {
+    "address": "alex@acme.com",
+    "valid": true,
+    "deliverable": true,
+    "disposable": false,
+    "spam_trap": false,
+    "role_account": false
+  },
+  "phone": {
+    "number": "+447700900123",
+    "valid": true,
+    "reachable": true,
+    "line_type": "mobile",
+    "carrier": "EE",
+    "ported": false
+  },
+  "ip": {
+    "address": "8.8.8.8",
+    "country_code": "US",
+    "is_vpn": false,
+    "is_proxy": false,
+    "is_tor": false,
+    "is_datacenter": true,
+    "threat_score": 10
+  },
+  "domain": {
+    "domain": "acme.com",
+    "registered": true,
+    "age_days": 10580,
+    "dns_healthy": true,
+    "disposable": false,
+    "safety_score": 92
+  },
+  "credits_used": 5
+}
+```
+
+## Response fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `fraud_score` | integer | Composite fraud risk score 0–100. Higher = higher risk. |
+| `risk_level` | string | `low`, `medium`, or `high` based on `fraud_score` |
+| `email` | object | Email validation results |
+| `phone` | object | Phone HLR results |
+| `ip` | object | IP intelligence results |
+| `domain` | object | Domain intelligence results |
+| `credits_used` | integer | Credits deducted — always `5` for this endpoint |
+
+### Risk level thresholds
+
+| `fraud_score` range | `risk_level` |
+|--------------------|-------------|
+| 0–30 | `low` |
+| 31–69 | `medium` |
+| 70–100 | `high` |
+
+## Use cases
+
+- **Account opening fraud** — score new signups before granting access
+- **Payment fraud prevention** — run a full entity check before processing a transaction
+- **KYB / onboarding** — validate that a business contact's details are consistent and legitimate
+- **Lead scoring** — filter out low-quality or fraudulent leads before they enter your CRM
+
+<Note>
+  The `fraud_score` is a composite signal derived from all four data types. It is designed to surface risk — a high score does not confirm fraud, but warrants additional scrutiny or a manual review step.
+</Note>

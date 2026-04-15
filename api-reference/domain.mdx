@@ -1,0 +1,81 @@
+---
+title: Domain Intelligence
+description: WHOIS data, DNS health, and a composite safety score for any domain.
+---
+
+## Endpoint
+
+```
+POST /v1/domain
+```
+
+**Cost:** 2 credits per request
+
+## Request body
+
+```json
+{
+  "domain": "acme.com"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `domain` | string | Yes | Domain name to look up (without protocol — e.g. `acme.com` not `https://acme.com`) |
+
+## Example request
+
+```bash
+curl -X POST https://api.datalinkapis.com/v1/domain \
+  -H "Authorization: Bearer dl_live_YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "domain": "acme.com" }'
+```
+
+## Response
+
+```json
+{
+  "domain": "acme.com",
+  "valid": true,
+  "registered": true,
+  "registrar": "GoDaddy",
+  "created_date": "1997-04-12",
+  "expiry_date": "2026-04-12",
+  "age_days": 10580,
+  "dns_healthy": true,
+  "mx_found": true,
+  "spf_found": true,
+  "dmarc_found": true,
+  "disposable": false,
+  "parked": false,
+  "safety_score": 92,
+  "credits_used": 2
+}
+```
+
+## Response fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `domain` | string | The domain that was checked |
+| `valid` | boolean | Whether the domain is syntactically valid and registered |
+| `registered` | boolean | Whether the domain has an active registration |
+| `registrar` | string | Name of the registrar |
+| `created_date` | string | Registration date (ISO 8601) |
+| `expiry_date` | string | Expiry date (ISO 8601) |
+| `age_days` | integer | Age of the domain in days |
+| `dns_healthy` | boolean | Whether DNS records resolve correctly |
+| `mx_found` | boolean | Whether at least one MX record is present |
+| `spf_found` | boolean | Whether an SPF TXT record exists |
+| `dmarc_found` | boolean | Whether a DMARC policy record exists |
+| `disposable` | boolean | Whether the domain is associated with disposable email services |
+| `parked` | boolean | Whether the domain appears to be parked with no active content |
+| `safety_score` | integer | Composite safety score 0–100. Higher = safer. |
+| `credits_used` | integer | Credits deducted — always `2` for this endpoint |
+
+## Use cases
+
+- **Vendor due diligence** — assess domain age and safety before engaging with a new supplier
+- **Lead enrichment** — understand the health and maturity of a prospect's domain
+- **Email infrastructure check** — verify SPF and DMARC records are in place before a campaign

@@ -1,0 +1,69 @@
+---
+title: Rate Limits
+description: Request rate limits by plan and how to handle 429 responses.
+---
+
+## Limits by plan
+
+| Plan | Requests per second | Requests per minute |
+|------|--------------------|--------------------|
+| Free | 2 | 60 |
+| Starter | 10 | 300 |
+| Pro | 50 | 1,500 |
+
+<Note>
+  Rate limits apply per API key. If you need higher throughput, contact us about enterprise arrangements.
+</Note>
+
+## Rate limit headers
+
+Every response includes headers that tell you your current limit status:
+
+| Header | Description |
+|--------|-------------|
+| `X-RateLimit-Limit` | Maximum requests allowed in the current window |
+| `X-RateLimit-Remaining` | Requests remaining in the current window |
+| `X-RateLimit-Reset` | Unix timestamp when the window resets |
+
+## Handling 429 responses
+
+When you exceed the rate limit, the API returns a `429 Too Many Requests` response:
+
+```json
+{
+  "error": "Too Many Requests",
+  "message": "Rate limit exceeded. Please slow down.",
+  "retry_after": 2
+}
+```
+
+The `retry_after` field tells you how many seconds to wait before retrying.
+
+## Recommended retry strategy
+
+Use exponential backoff when you receive a `429`:
+
+```javascript
+async function callWithRetry(fn, maxRetries = 3) {
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      return await fn()
+    } catch (err) {
+      if (err.status === 429 && attempt < maxRetries - 1) {
+        const wait = Math.pow(2, attempt) * 1000 // 1s, 2s, 4s
+        await new Promise(resolve => setTimeout(resolve, wait))
+      } else {
+        throw err
+      }
+    }
+  }
+}
+```
+
+## Bulk processing tips
+
+If you are processing large lists of contacts:
+
+- **Batch in parallel, not all at once** — send groups of 5–10 concurrent requests rather than flooding the endpoint
+- **Respect `retry_after`** — honour the value in the `429` response rather than using a fixed delay
+- **Use bundle endpoints** — `contact-intel` and `fraud-signals` reduce your total request count by combining lookups
