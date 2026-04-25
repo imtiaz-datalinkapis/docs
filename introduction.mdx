@@ -24,17 +24,17 @@ DataLink APIs is a data intelligence gateway that lets you validate and enrich a
 
 ## Bundle endpoints
 
-For higher-signal use cases, bundle endpoints combine multiple data types in a single call — cheaper than calling each individually.
+For higher-signal use cases, bundle endpoints combine multiple data types in a single call — cheaper than calling each individually. You are only billed for the fields you include.
 
 | Endpoint | What it covers | Credits |
 |----------|---------------|---------|
-| `/v1/deliverability` | Deep email SMTP + spam trap + disposable detection | 3 |
-| `/v1/contact-intel` | Email + Phone + IP in one request | 4 |
-| `/v1/fraud-signals` | Email + Phone + IP + Domain — full entity profile | 5 |
+| `/v1/deliverability` | Deep email SMTP + spam trap + disposable detection | up to 3 |
+| `/v1/contact-intel` | Email + Phone + Domain + IP in one request | up to 4 |
+| `/v1/fraud-signals` | Email + Phone + IP — composite fraud risk score | up to 4 |
 
 ## How credits work
 
-Every API call costs a fixed number of credits depending on the endpoint. Credits are deducted from your monthly allowance. Your plan determines how many credits you get per month.
+Every API call costs credits based on the lookups performed. Credits are deducted from your monthly allowance. Your plan determines how many credits you get per month.
 
 | Plan | Credits / month | Price |
 |------|----------------|-------|

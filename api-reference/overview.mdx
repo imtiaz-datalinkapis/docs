@@ -33,11 +33,13 @@ curl -X POST https://api.datalinkapis.com/v1/{endpoint} \
 
 ### Bundle endpoints
 
+Bundle endpoints charge dynamically based on the fields you include — you only pay for the lookups you request.
+
 | Endpoint | Description | Credits |
 |----------|-------------|---------|
-| [`POST /v1/deliverability`](/api-reference/deliverability) | Deep email deliverability check | 3 |
-| [`POST /v1/contact-intel`](/api-reference/contact-intel) | Email + Phone + IP combined | 4 |
-| [`POST /v1/fraud-signals`](/api-reference/fraud-signals) | Full entity profile — Email + Phone + IP + Domain | 5 |
+| [`POST /v1/deliverability`](/api-reference/deliverability) | Deep email deliverability check | up to 3 |
+| [`POST /v1/contact-intel`](/api-reference/contact-intel) | Email + Phone + Domain + IP combined | up to 4 |
+| [`POST /v1/fraud-signals`](/api-reference/fraud-signals) | Email + Phone + IP — composite fraud risk score | up to 4 |
 
 ## Common fields in every response
 

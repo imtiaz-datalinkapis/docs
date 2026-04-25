@@ -5,7 +5,7 @@ description: How the DataLink APIs credit system works.
 
 ## What is a credit?
 
-A credit is the unit of consumption for every API call. Each endpoint has a fixed credit cost regardless of the result — a failed validation still costs the same as a successful one, because the lookup was performed.
+A credit is the unit of consumption for every API call. Each endpoint has a fixed credit cost based on the lookups performed. A failed validation still costs the same as a successful one — the lookup was performed regardless.
 
 ## Credit costs per endpoint
 
@@ -15,21 +15,48 @@ A credit is the unit of consumption for every API call. Each endpoint has a fixe
 | `POST /v1/ip` | 1 |
 | `POST /v1/phone` | 2 |
 | `POST /v1/domain` | 2 |
-| `POST /v1/deliverability` | 3 |
-| `POST /v1/contact-intel` | 4 |
-| `POST /v1/fraud-signals` | 5 |
+| `POST /v1/deliverability` | up to 3 |
+| `POST /v1/contact-intel` | up to 4 |
+| `POST /v1/fraud-signals` | up to 4 |
 
-## Bundle savings
+## Bundle endpoints — dynamic billing
 
-Bundle endpoints are cheaper than calling each component separately:
+Bundle endpoints are priced dynamically based on which optional fields you include. You are only charged for the sub-lookups actually performed.
 
-| Bundle | Components | Separate cost | Bundle cost | Saving |
-|--------|-----------|--------------|-------------|--------|
-| Contact Intel | Email + Phone + IP | 4 credits | 4 credits | Same cost, one call |
-| Fraud Signals | Email + Phone + IP + Domain | 6 credits | 5 credits | 1 credit saved |
+### `/v1/deliverability`
+
+| Fields provided | Credits charged |
+|----------------|----------------|
+| `email` only | 1 |
+| `email` + `phone` | 3 |
+
+Maximum: 3 credits. Providing only `email` costs 1 credit.
+
+### `/v1/contact-intel`
+
+| Fields provided | Credits charged |
+|----------------|----------------|
+| `email` only | 1 |
+| `email` + `ip` | 2 |
+| `email` + `phone` | 3 |
+| `email` + `domain` | 3 |
+| All fields (`email` + `phone` + `domain` + `ip`) | 4 |
+
+Maximum: 4 credits. Calling all four data points individually would cost 6 credits — the bundle saves 2 credits on a full call.
+
+### `/v1/fraud-signals`
+
+| Fields provided | Credits charged |
+|----------------|----------------|
+| `email` only | 1 |
+| `email` + `ip` | 2 |
+| `email` + `phone` | 3 |
+| All fields (`email` + `phone` + `ip`) | 4 |
+
+Maximum: 4 credits.
 
 <Tip>
-  Use bundle endpoints when you need multiple data points on the same entity. You get a unified response in one round trip.
+  Only pass the fields you need. Bundle endpoints bill for the lookups you actually request — omitting optional fields reduces the credit cost proportionally.
 </Tip>
 
 ## Monthly allowance

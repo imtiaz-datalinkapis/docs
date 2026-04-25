@@ -1,6 +1,6 @@
 ---
 title: Fraud Signals
-description: Full entity profile — email, phone, IP, and domain in one call.
+description: Composite fraud risk scoring across email, phone, and IP in one call.
 ---
 
 ## Endpoint
@@ -9,9 +9,16 @@ description: Full entity profile — email, phone, IP, and domain in one call.
 POST /v1/fraud-signals
 ```
 
-**Cost:** 5 credits per request
+**Cost:** 1–4 credits per request (dynamic)
 
-Fraud Signals is the highest-signal endpoint in the DataLink APIs suite. It runs all four intelligence types — email, phone, IP, and domain — and returns a unified risk assessment with a composite fraud score. Calling each separately would cost 6 credits; the bundle saves 1 credit while delivering a richer, correlated result.
+Fraud Signals returns a unified risk assessment with a composite fraud score across email, phone, and IP. You are only billed for the fields you include — omit any optional field to reduce the credit cost.
+
+| Fields provided | Credits charged |
+|----------------|----------------|
+| `email` only | 1 |
+| `email` + `ip` | 2 |
+| `email` + `phone` | 3 |
+| All fields (`email` + `phone` + `ip`) | 4 |
 
 ## Request body
 
@@ -19,17 +26,15 @@ Fraud Signals is the highest-signal endpoint in the DataLink APIs suite. It runs
 {
   "email": "alex@acme.com",
   "phone": "+447700900123",
-  "ip": "8.8.8.8",
-  "domain": "acme.com"
+  "ip": "8.8.8.8"
 }
 ```
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `email` | string | Yes | Email address to validate |
-| `phone` | string | Yes | Phone number in E.164 format |
-| `ip` | string | Yes | IPv4 or IPv6 address |
-| `domain` | string | Yes | Domain to check (without protocol) |
+| `phone` | string | No | Phone number in E.164 format |
+| `ip` | string | No | IPv4 or IPv6 address |
 
 ## Example request
 
@@ -40,8 +45,7 @@ curl -X POST https://api.datalinkapis.com/v1/fraud-signals \
   -d '{
     "email": "alex@acme.com",
     "phone": "+447700900123",
-    "ip": "8.8.8.8",
-    "domain": "acme.com"
+    "ip": "8.8.8.8"
   }'
 ```
 
@@ -76,15 +80,7 @@ curl -X POST https://api.datalinkapis.com/v1/fraud-signals \
     "is_datacenter": true,
     "threat_score": 10
   },
-  "domain": {
-    "domain": "acme.com",
-    "registered": true,
-    "age_days": 10580,
-    "dns_healthy": true,
-    "disposable": false,
-    "safety_score": 92
-  },
-  "credits_used": 5
+  "credits_used": 4
 }
 ```
 
@@ -95,10 +91,9 @@ curl -X POST https://api.datalinkapis.com/v1/fraud-signals \
 | `fraud_score` | integer | Composite fraud risk score 0–100. Higher = higher risk. |
 | `risk_level` | string | `low`, `medium`, or `high` based on `fraud_score` |
 | `email` | object | Email validation results |
-| `phone` | object | Phone HLR results |
-| `ip` | object | IP intelligence results |
-| `domain` | object | Domain intelligence results |
-| `credits_used` | integer | Credits deducted — always `5` for this endpoint |
+| `phone` | object | Phone HLR results (present when `phone` was provided) |
+| `ip` | object | IP intelligence results (present when `ip` was provided) |
+| `credits_used` | integer | Credits deducted — 1–4 depending on fields provided |
 
 ### Risk level thresholds
 
@@ -116,5 +111,5 @@ curl -X POST https://api.datalinkapis.com/v1/fraud-signals \
 - **Lead scoring** — filter out low-quality or fraudulent leads before they enter your CRM
 
 <Note>
-  The `fraud_score` is a composite signal derived from all four data types. It is designed to surface risk — a high score does not confirm fraud, but warrants additional scrutiny or a manual review step.
+  The `fraud_score` is a composite signal derived from all provided data types. It is designed to surface risk — a high score does not confirm fraud, but warrants additional scrutiny or a manual review step.
 </Note>

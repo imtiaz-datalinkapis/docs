@@ -1,6 +1,6 @@
 ---
 title: Contact Intelligence
-description: Validate email, phone, and IP in a single request.
+description: Validate email, phone, IP, and domain in a single request.
 ---
 
 ## Endpoint
@@ -9,9 +9,17 @@ description: Validate email, phone, and IP in a single request.
 POST /v1/contact-intel
 ```
 
-**Cost:** 4 credits per request
+**Cost:** 1–4 credits per request (dynamic)
 
-Contact Intel combines email validation, phone HLR, and IP intelligence into a single call. Instead of three separate requests (4 credits total), you get a unified response with full context on a contact in one round trip.
+Contact Intel combines email validation, phone HLR, IP intelligence, and domain profiling into a single call. You are only billed for the fields you include — a full call costs 4 credits versus 6 credits if each endpoint were called individually.
+
+| Fields provided | Credits charged |
+|----------------|----------------|
+| `email` only | 1 |
+| `email` + `ip` | 2 |
+| `email` + `phone` | 3 |
+| `email` + `domain` | 3 |
+| All fields (`email` + `phone` + `domain` + `ip`) | 4 |
 
 ## Request body
 
@@ -19,15 +27,17 @@ Contact Intel combines email validation, phone HLR, and IP intelligence into a s
 {
   "email": "alex@acme.com",
   "phone": "+447700900123",
-  "ip": "8.8.8.8"
+  "ip": "8.8.8.8",
+  "domain": "acme.com"
 }
 ```
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `email` | string | Yes | Email address to validate |
-| `phone` | string | Yes | Phone number in E.164 format |
-| `ip` | string | Yes | IPv4 or IPv6 address |
+| `phone` | string | No | Phone number in E.164 format |
+| `ip` | string | No | IPv4 or IPv6 address |
+| `domain` | string | No | Domain to profile (without protocol) |
 
 ## Example request
 
@@ -38,7 +48,8 @@ curl -X POST https://api.datalinkapis.com/v1/contact-intel \
   -d '{
     "email": "alex@acme.com",
     "phone": "+447700900123",
-    "ip": "8.8.8.8"
+    "ip": "8.8.8.8",
+    "domain": "acme.com"
   }'
 ```
 
@@ -71,28 +82,38 @@ curl -X POST https://api.datalinkapis.com/v1/contact-intel \
     "is_tor": false,
     "threat_score": 10
   },
+  "domain": {
+    "domain": "acme.com",
+    "registered": true,
+    "age_days": 10580,
+    "dns_healthy": true,
+    "disposable": false,
+    "safety_score": 92
+  },
   "credits_used": 4
 }
 ```
 
 ## Response fields
 
-The response contains three nested objects — `email`, `phone`, and `ip` — each containing a subset of the fields from their respective standalone endpoints.
+The response contains nested objects for each field you included in the request — each containing a subset of the fields from their respective standalone endpoints.
 
 For the full field reference for each section, see:
 - [Email Validation](/api-reference/email)
 - [Phone HLR](/api-reference/phone)
 - [IP Intelligence](/api-reference/ip)
+- [Domain Intelligence](/api-reference/domain)
 
 | Field | Type | Description |
 |-------|------|-------------|
 | `email` | object | Email validation results |
-| `phone` | object | Phone HLR results |
-| `ip` | object | IP intelligence results |
-| `credits_used` | integer | Credits deducted — always `4` for this endpoint |
+| `phone` | object | Phone HLR results (present when `phone` was provided) |
+| `ip` | object | IP intelligence results (present when `ip` was provided) |
+| `domain` | object | Domain intelligence results (present when `domain` was provided) |
+| `credits_used` | integer | Credits deducted — 1–4 depending on fields provided |
 
 ## Use cases
 
-- **Signup risk assessment** — validate all three data points at registration in a single call
-- **CRM enrichment** — enrich a new lead record with confidence on email, phone, and location simultaneously
-- **Contact list cleaning** — batch-process contacts with a single endpoint rather than three
+- **Signup risk assessment** — validate all data points at registration in a single call
+- **CRM enrichment** — enrich a new lead record with confidence on email, phone, location, and domain simultaneously
+- **Contact list cleaning** — batch-process contacts with a single endpoint rather than calling each individually
