@@ -11,6 +11,12 @@ POST /v1/contact-intel
 
 **Cost:** 1–4 credits per request (dynamic)
 
+Built for teams who need raw, structured data about a contact. Use Contact Intel when you want the full picture on each entity — email validity, phone reachability, IP geolocation, and domain health — and apply your own logic to the results. It's the right choice for CRM enrichment, list cleaning, and onboarding validation where you need detailed fields, not a pre-computed decision.
+
+<Tip>
+  If you want a single risk score you can gate on directly, see [Fraud Signals](/api-reference/fraud-signals). It shares the same inputs but returns a composite `fraud_score` and `risk_level` instead of raw field data.
+</Tip>
+
 Contact Intel combines email validation, phone HLR, IP intelligence, and domain profiling into a single call. You are only billed for the fields you include — a full call costs 4 credits versus 6 credits if each endpoint were called individually.
 
 | Fields provided | Credits charged |
@@ -107,13 +113,43 @@ For the full field reference for each section, see:
 | Field | Type | Description |
 |-------|------|-------------|
 | `email` | object | Email validation results |
+| `email.address` | string | Normalised email address |
+| `email.valid` | boolean | Passes syntax and DNS checks |
+| `email.deliverable` | boolean | SMTP-confirmed deliverable |
+| `email.disposable` | boolean | Temporary/throwaway address |
+| `email.role_account` | boolean | Role address (e.g. info@, support@) |
+| `email.mx_found` | boolean | MX records exist for this domain |
 | `phone` | object | Phone HLR results (present when `phone` was provided) |
+| `phone.number` | string | E.164 formatted number |
+| `phone.valid` | boolean | Valid, dialable number |
+| `phone.reachable` | boolean | Live HLR confirms number is active |
+| `phone.line_type` | string | `mobile`, `landline`, `voip`, or `unknown` |
+| `phone.carrier` | string | Current network operator |
+| `phone.country_code` | string | ISO 3166-1 alpha-2 country code |
 | `ip` | object | IP intelligence results (present when `ip` was provided) |
+| `ip.address` | string | Queried IP address |
+| `ip.country_code` | string | ISO 3166-1 alpha-2 country code |
+| `ip.city` | string | City associated with the IP |
+| `ip.is_vpn` | boolean | Known VPN exit node |
+| `ip.is_proxy` | boolean | Known proxy |
+| `ip.is_tor` | boolean | Tor exit node |
+| `ip.threat_score` | integer | Provider threat score 0–100 |
 | `domain` | object | Domain intelligence results (present when `domain` was provided) |
+| `domain.domain` | string | Queried domain |
+| `domain.registered` | boolean | Domain is registered |
+| `domain.age_days` | integer | Days since registration (`-1` if unknown) |
+| `domain.dns_healthy` | boolean | A or MX records resolve successfully |
+| `domain.disposable` | boolean | Known disposable/temporary domain |
+| `domain.safety_score` | integer | Domain trust score 0–100 |
 | `credits_used` | integer | Credits deducted — 1–4 depending on fields provided |
+
+<Note>
+  Contact Intel surfaces enrichment-oriented fields not available in Fraud Signals: `email.mx_found`, `ip.city`, `phone.country_code`, and `domain.dns_healthy`. Fraud Signals surfaces risk-specific signals instead: `email.spam_trap`, `ip.is_datacenter`, and `phone.ported`.
+</Note>
 
 ## Use cases
 
-- **Signup risk assessment** — validate all data points at registration in a single call
-- **CRM enrichment** — enrich a new lead record with confidence on email, phone, location, and domain simultaneously
-- **Contact list cleaning** — batch-process contacts with a single endpoint rather than calling each individually
+- **CRM enrichment** — enrich a new lead record with structured data on email, phone, IP, and domain in one call
+- **Onboarding validation** — confirm that a new user's contact details are real and consistent before granting access
+- **Contact list cleaning** — batch-validate contacts against all four data points with a single endpoint
+- **Signup risk assessment** — surface the raw signals you need to apply your own risk logic

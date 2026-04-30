@@ -1,6 +1,6 @@
 ---
 title: Fraud Signals
-description: Composite fraud risk scoring across email, phone, and IP in one call.
+description: Composite fraud risk scoring across email, phone, IP, and domain in one call.
 ---
 
 ## Endpoint
@@ -9,16 +9,25 @@ description: Composite fraud risk scoring across email, phone, and IP in one cal
 POST /v1/fraud-signals
 ```
 
-**Cost:** 1–4 credits per request (dynamic)
+**Cost:** 1–5 credits per request (dynamic)
 
-Fraud Signals returns a unified risk assessment with a composite fraud score across email, phone, and IP. You are only billed for the fields you include — omit any optional field to reduce the credit cost.
+Built for risk and fraud teams who need a single, actionable decision. Use Fraud Signals when you want a composite `fraud_score` and `risk_level` you can gate on directly — not raw data to evaluate yourself. It's the right choice for account opening checks, payment screening, and lead quality filtering where speed and simplicity matter more than field-level detail.
+
+<Tip>
+  If you need the full structured breakdown per entity — geolocation, DNS health, carrier country, and more — see [Contact Intelligence](/api-reference/contact-intel). It shares the same inputs but returns detailed enrichment data instead of a composite score.
+</Tip>
+
+Fraud Signals returns a unified risk assessment with a composite fraud score across email, phone, IP, and domain. You are only billed for the fields you include — omit any optional field to reduce the credit cost.
 
 | Fields provided | Credits charged |
 |----------------|----------------|
 | `email` only | 1 |
 | `email` + `ip` | 2 |
 | `email` + `phone` | 3 |
-| All fields (`email` + `phone` + `ip`) | 4 |
+| `email` + `domain` | 3 |
+| `email` + `ip` + `phone` | 4 |
+| `email` + `ip` + `domain` | 4 |
+| All fields (`email` + `phone` + `ip` + `domain`) | 5 |
 
 ## Request body
 
@@ -26,7 +35,8 @@ Fraud Signals returns a unified risk assessment with a composite fraud score acr
 {
   "email": "alex@acme.com",
   "phone": "+447700900123",
-  "ip": "8.8.8.8"
+  "ip": "8.8.8.8",
+  "domain": "acme.com"
 }
 ```
 
@@ -35,6 +45,7 @@ Fraud Signals returns a unified risk assessment with a composite fraud score acr
 | `email` | string | Yes | Email address to validate |
 | `phone` | string | No | Phone number in E.164 format |
 | `ip` | string | No | IPv4 or IPv6 address |
+| `domain` | string | No | Domain to score (without protocol) |
 
 ## Example request
 
@@ -45,7 +56,8 @@ curl -X POST https://api.datalinkapis.com/v1/fraud-signals \
   -d '{
     "email": "alex@acme.com",
     "phone": "+447700900123",
-    "ip": "8.8.8.8"
+    "ip": "8.8.8.8",
+    "domain": "acme.com"
   }'
 ```
 
@@ -80,7 +92,14 @@ curl -X POST https://api.datalinkapis.com/v1/fraud-signals \
     "is_datacenter": true,
     "threat_score": 10
   },
-  "credits_used": 4
+  "domain": {
+    "domain": "acme.com",
+    "registered": true,
+    "age_days": 10580,
+    "disposable": false,
+    "safety_score": 92
+  },
+  "credits_used": 5
 }
 ```
 
@@ -90,10 +109,39 @@ curl -X POST https://api.datalinkapis.com/v1/fraud-signals \
 |-------|------|-------------|
 | `fraud_score` | integer | Composite fraud risk score 0–100. Higher = higher risk. |
 | `risk_level` | string | `low`, `medium`, or `high` based on `fraud_score` |
-| `email` | object | Email validation results |
-| `phone` | object | Phone HLR results (present when `phone` was provided) |
-| `ip` | object | IP intelligence results (present when `ip` was provided) |
-| `credits_used` | integer | Credits deducted — 1–4 depending on fields provided |
+| `email` | object | Email risk signals |
+| `email.address` | string | Normalised email address |
+| `email.valid` | boolean | Passes syntax and DNS checks |
+| `email.deliverable` | boolean | SMTP-confirmed deliverable |
+| `email.disposable` | boolean | Temporary/throwaway address |
+| `email.spam_trap` | boolean | Known spam trap address |
+| `email.role_account` | boolean | Role address (e.g. info@, support@) |
+| `phone` | object | Phone risk signals (present when `phone` was provided) |
+| `phone.number` | string | E.164 formatted number |
+| `phone.valid` | boolean | Valid, dialable number |
+| `phone.reachable` | boolean | Live HLR confirms number is active |
+| `phone.line_type` | string | `mobile`, `landline`, `voip`, or `unknown` |
+| `phone.carrier` | string | Current network operator |
+| `phone.ported` | boolean | Number has been ported — a common fraud vector |
+| `ip` | object | IP risk signals (present when `ip` was provided) |
+| `ip.address` | string | Queried IP address |
+| `ip.country_code` | string | ISO 3166-1 alpha-2 country code |
+| `ip.is_vpn` | boolean | Known VPN exit node |
+| `ip.is_proxy` | boolean | Known proxy |
+| `ip.is_tor` | boolean | Tor exit node |
+| `ip.is_datacenter` | boolean | Datacenter IP — real users rarely originate from these |
+| `ip.threat_score` | integer | Provider threat score 0–100 |
+| `domain` | object | Domain risk signals (present when `domain` was provided) |
+| `domain.domain` | string | Queried domain |
+| `domain.registered` | boolean | Domain is registered |
+| `domain.age_days` | integer | Days since registration (`-1` if unknown) |
+| `domain.disposable` | boolean | Known disposable/temporary domain |
+| `domain.safety_score` | integer | Domain trust score 0–100 |
+| `credits_used` | integer | Credits deducted — 1–5 depending on fields provided |
+
+<Note>
+  Fraud Signals surfaces risk-specific fields not available in Contact Intel: `email.spam_trap`, `ip.is_datacenter`, and `phone.ported`. Contact Intel surfaces enrichment-oriented fields instead: `email.mx_found`, `ip.city`, `phone.country_code`, and `domain.dns_healthy`.
+</Note>
 
 ### Risk level thresholds
 

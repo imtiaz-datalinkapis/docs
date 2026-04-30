@@ -11,6 +11,8 @@ POST /v1/deliverability
 
 **Cost:** 1–3 credits per request (dynamic)
 
+Built for email senders who need to protect their sender reputation. Use Deliverability when a bounce or spam trap hit has real consequences — cold outreach campaigns, transactional flows, or any send where deliverability SLAs matter. It goes further than standard email validation by running an extended SMTP handshake and catch-all detection, giving you a `confidence` rating you can act on before you send.
+
 This is a deeper version of the standard email validation. Where `/v1/email` confirms basic reachability, `/v1/deliverability` runs an extended SMTP handshake, cross-references known spam trap databases, and applies additional disposable provider detection. Adding a `phone` field extends the check to include phone HLR.
 
 | Fields provided | Credits charged |
