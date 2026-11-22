@@ -79,7 +79,7 @@
       "anchors": [
         {
           "anchor": "Playground",
-          "href": "https://datalinkapis.com/playground",
+          "href": "https://www.datalinkapis.com/playground",
           "icon": "bolt"
         },
         {
@@ -89,7 +89,7 @@
         },
         {
           "anchor": "Contact",
-          "href": "https://datalinkapis.com/contact",
+          "href": "https://www.datalinkapis.com/contact",
           "icon": "envelope"
         }
       ]
