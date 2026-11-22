@@ -7,10 +7,14 @@
     "light": "#4EDEA3",
     "dark": "#006C49"
   },
-  "favicon": "/favicon.svg",
+  "favicon": {
+    "light": "/images/favicon-32x32.png",
+    "dark": "/images/favicon-32x32.png"
+  },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/images/datalink-logo-horizontal-reverse-500.png",
+    "dark": "/images/datalink-logo-horizontal-500.png",
+    "href": "https://www.datalinkapis.com"
   },
   "navbar": {
     "links": [
