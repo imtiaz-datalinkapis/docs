@@ -19,14 +19,18 @@
   "navbar": {
     "links": [
       {
+        "label": "Home",
+        "href": "https://www.datalinkapis.com"
+      },
+      {
         "label": "Dashboard",
-        "href": "https://datalinkapis.com/dashboard"
+        "href": "https://www.datalinkapis.com/dashboard"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Get API Key",
-      "href": "https://datalinkapis.com/login"
+      "href": "https://www.datalinkapis.com/login"
     }
   },
   "navigation": {
